@@ -21,4 +21,8 @@ Jazz chord naming is a logical task. Although it seems that this task could be d
 - - pychord: []
 
 - Example 2: given a chord [C,E,B,D], a jazz musician will give in a second that it is a C-major-ninth chord; here are the performances of the existing wheels:
-- 
+- - mingus: ['Em7|CM7']
+- - music21: ('CM9', 'major-ninth')
+- - pychord: []
+
+Our system is tailored on the chord naming preferences of jazz musicians. It takes account of every commonly/less-commonly used chords, at the same time avoiding overly complex naming.
