@@ -158,6 +158,13 @@ def remove_inversion(chord_quality):
             splitted = splitted[:-2]
     return "-".join(splitted)
 
+def remove_bass(bass_note, chroma24):
+    if len(chroma24) <= 1:
+        return bass_note, []
+    first_interval = chroma24[0]
+    new_chroma24 = [interval - first_interval for interval in chroma24[1:]]
+    new_bass_note = bass_note + first_interval
+    return new_bass_note, new_chroma24
 
 '''
     remove note extension from a chord symbol, 
@@ -273,22 +280,26 @@ def is_major_basics(chroma24, chroma12 = None, chroma12_is_octave = None, invert
             return MAJOR,IMP_HIGH
         elif chroma12 in MAJOR_SECOND_TEMPLATES_CHROMA12:
             return MAJOR_2,IMP_HIGH
-        elif chroma12 in MAJOR_FLAT5_TEMPLATES_CHROMA12:
+        elif chroma12 in MAJOR_SEVENTH_TEMPLATES_CHROMA12:
+            return MAJOR_7,IMP_HIGH
+        elif chroma12 in MAJOR_SIXTH_TEMPLATES_CHROMA12 and not inverted:
+            return MAJOR_6,IMP_HIGH
+        elif chroma12 in MAJOR_69_TEMPLATES_CHROMA12 and not inverted:
+            return MAJOR_69,IMP_HIGH
+    return False
+
+def is_major_less_basics(chroma24, chroma12 = None, chroma12_is_octave = None, inverted = False):
+    if INT_m3 not in chroma24:
+        chroma12, chroma12_is_octave = default_chroma12(chroma24, chroma12, chroma12_is_octave)
+        if chroma12 in MAJOR_FLAT5_TEMPLATES_CHROMA12:
             return MAJOR_b5,IMP_MID
         elif chroma12 in MAJOR_SHARP4_TEMPLATES_CHROMA12:
             return MAJOR_a4,IMP_MID
         elif chroma12 in MAJOR_FOURTH_TEMPLATES_CHROMA12:
             return MAJOR_4,IMP_MID
-        elif chroma12 in MAJOR_SEVENTH_TEMPLATES_CHROMA12:
-            return MAJOR_7,IMP_HIGH
-        elif chroma12 in MAJOR_SIXTH_TEMPLATES_CHROMA12 and not inverted:
-            return MAJOR_6,IMP_HIGH
         elif chroma24 in MAJOR_67_TEMPLATES and not inverted:
             return MAJOR_67,IMP_MID
-        elif chroma12 in MAJOR_69_TEMPLATES_CHROMA12 and not inverted:
-            return MAJOR_69,IMP_HIGH
     return False
-
 
 MINOR_TRIAD_TEMPLATES_CHROMA12 = [
     [INT_m3,INT_5]
@@ -322,22 +333,28 @@ def is_minor_basics(chroma24, chroma12 = None, chroma12_is_octave = None, invert
         
         if chroma12 in MINOR_TRIAD_TEMPLATES_CHROMA12:
             return MINOR,IMP_HIGH
-        elif chroma12 in MINOR_FOURTH_TEMPLATES_CHROMA12:
-            return MINOR_4,IMP_MID
         elif chroma12 in MINOR_SEVENTH_TEMPLATES_CHROMA12:
             return MINOR_7,IMP_HIGH
-        elif chroma12 in MINOR_SEVENTH_SIXTH_TEMPLATES_CHROMA12:
-            return MINOR_67,IMP_MID
         elif chroma12 in MINOR_MAJOR_SEVENTH_TEMPLATES_CHROMA12:
             return MINOR_M7,IMP_HIGH
-        elif chroma12 in MINOR_SIXTH_MAJOR_SEVENTH_TEMPLATES_CHROMA12:
-            return MINOR_6_M7,IMP_LOW
         elif chroma12 in MINOR_SIXTH_TEMPLATES_CHROMA12 and not inverted:
             return MINOR_6,IMP_HIGH
         elif chroma24 in MINOR_69_TEMPLATES and not inverted:
             return MINOR_69,IMP_HIGH
     return False
 
+
+def is_minor_less_basics(chroma24, chroma12 = None, chroma12_is_octave = None, inverted = False):
+    if INT_M3 not in chroma24:
+        chroma12, chroma12_is_octave = default_chroma12(chroma24, chroma12, chroma12_is_octave)
+        
+        if chroma12 in MINOR_FOURTH_TEMPLATES_CHROMA12:
+            return MINOR_4,IMP_MID
+        elif chroma12 in MINOR_SEVENTH_SIXTH_TEMPLATES_CHROMA12:
+            return MINOR_67,IMP_MID
+        elif chroma12 in MINOR_SIXTH_MAJOR_SEVENTH_TEMPLATES_CHROMA12:
+            return MINOR_6_M7,IMP_LOW
+    return False
 
 DOM_SEVENTH_TEMPLATES_CHROMA12 = [
     [INT_M3,INT_5,INT_m7], [INT_M3,INT_m7]
@@ -357,7 +374,12 @@ def is_dominant_basics(chroma24, chroma12 = None, chroma12_is_octave = None, inv
         chroma12, chroma12_is_octave = default_chroma12(chroma24, chroma12, chroma12_is_octave)
         if chroma12 in DOM_SEVENTH_TEMPLATES_CHROMA12:
             return DOM_7,IMP_HIGH
-        elif chroma12 in DOM_SEVENTH_AUG5_TEMPLATES_CHROMA12:
+    return False
+
+def is_dominant_less_basics(chroma24, chroma12 = None, chroma12_is_octave = None, inverted = False):
+    if INT_m3 not in chroma24:
+        chroma12, chroma12_is_octave = default_chroma12(chroma24, chroma12, chroma12_is_octave)
+        if chroma12 in DOM_SEVENTH_AUG5_TEMPLATES_CHROMA12:
             return DOM_7_a5,IMP_MID
         elif chroma12 in DOM_SEVENTH_FLAT5_TEMPLATES_CHROMA12:
             return DOM_7_b5,IMP_MID
@@ -442,10 +464,13 @@ def is_dim_basics(chroma24, chroma12 = None, chroma12_is_octave = None, inverted
             return DIM_7,IMP_HIGH
         elif chroma12 in HALFDIM_SEVENTH_TEMPLATES_CHROMA12:
             return HALFDIM_7,IMP_HIGH
-        elif chroma12 in DIM_MAJOR_SEVENTH_TEMPLATES_CHROMA12:
+    return False
+def is_dim_less_basics(chroma24, chroma12 = None, chroma12_is_octave = None, inverted = False):
+    if INT_M3 not in chroma24:
+        chroma12, chroma12_is_octave = default_chroma12(chroma24, chroma12, chroma12_is_octave)
+        if chroma12 in DIM_MAJOR_SEVENTH_TEMPLATES_CHROMA12:
             return DIM_M7,IMP_MID
     return False
-
 
 ''' e.g.,
     chroma24 = [4,7,11,14,17,18,23] ([C,E,G,B,D,F,F#,A])
@@ -1057,11 +1082,15 @@ def is_halfdim_seventh_extensions(chroma24, chroma12 = None, chroma12_is_octave 
 chord_quality_checklist = [
     is_intervals, 
     is_major_basics, 
+    is_major_less_basics,
     is_minor_basics, 
+    is_minor_less_basics,
     is_dominant_basics,
+    is_dominant_less_basics,
     is_sus_basics,
     is_aug_basics,
     is_dim_basics,
+    is_dim_less_basics,
     is_alt,
     is_triad_extensions,
     is_major_seventh_sixth_extensions,
@@ -1073,6 +1102,13 @@ chord_quality_checklist = [
     is_dim_seventh_extensions,
     #TODO: detect scales
     #TODO: detect multi-intervals (4,5)
+]
+
+bass_removed_chord_quality_checklist = [
+    is_major_basics, 
+    is_minor_basics, 
+    is_dominant_basics,
+    is_dim_basics,
 ]
 
 def chroma24_to_chord_quality(chroma24_input, inverted = False, rectify = True, list_all = True):
@@ -1104,25 +1140,44 @@ def chroma24_to_chord_quality(chroma24_input, inverted = False, rectify = True, 
         if len(results) == 0:
             return [UNK_CHORD], [IMP_NA]
         return results, imps
+
+def is_basic_bass_modified_chords(bass_note, chroma24_input):
+    if len(chroma24_input)>=3:
+        new_bass, bass_removed_chroma24 = remove_bass(bass_note, chroma24_input)
+        for determine_func in bass_removed_chord_quality_checklist:
+            chroma12_input, chroma12_is_octave = chroma24_to_12(bass_removed_chroma24)
+            detected_and_imp = determine_func(bass_removed_chroma24, chroma12_input, chroma12_is_octave, inverted=False)
+            if detected_and_imp:
+                return (new_bass,detected_and_imp[0],bass_note)
+    return False
         
-        
-def bass_chroma24_to_chord_symbol(bass_note, chroma24_input, detect_inversion = False, list_all = True):
+def bass_chroma24_to_chord_symbol(bass_note, chroma24_input, detect_inversion = False, list_all = True, return_midi_num = True):
+    symbs, imps = chroma24_to_chord_quality(chroma24_input, inverted = False, list_all = list_all)
+    root_symb_bass_modified = is_basic_bass_modified_chords(bass_note, chroma24_input)
+    root_notes = [bass_note]*len(symbs)
+    inversion_bass_notes = [None]*len(symbs)
+    if root_symb_bass_modified:
+        root_notes.append(root_symb_bass_modified[0])
+        symbs.append(root_symb_bass_modified[1])
+        inversion_bass_notes.append(root_symb_bass_modified[2])
+        imps.append(IMP_HIGH)
+    
     if not detect_inversion:
-        symbs, imps = chroma24_to_chord_quality(chroma24_input, inverted = False, list_all = list_all)
+        if not return_midi_num:
+            root_notes = [PITCH_NUM_2_NAME[note%12] for note in root_notes]
+            bass_note = PITCH_NUM_2_NAME[bass_note%12]
         if list_all:
-            bass_notes = [bass_note]*len(symbs)
-            return zip(bass_notes, symbs)
+            return zip(root_notes, symbs, inversion_bass_notes)
         else:
             max_imp_id = np.argmax(imps)
-            return [(bass_note, symbs[max_imp_id])]
+            return [(root_notes[max_imp_id], symbs[max_imp_id], inversion_bass_notes[max_imp_id])]
     
     else:
-        symbs, imps = chroma24_to_chord_quality(chroma24_input, inverted = False, list_all = list_all)
         results = []
         result_imps = []
-        for individual_symb, imp in zip(symbs, imps):
-            if individual_symb != UNK_CHORD:
-                results.append((bass_note,individual_symb))
+        for note, symb, bass, imp in zip(root_notes, symbs, inversion_bass_notes, imps):
+            if symb != UNK_CHORD:
+                results.append((note,symb,bass))
                 result_imps.append(imp)
 
         new_chroma24 = chroma24_input[:]
@@ -1131,32 +1186,41 @@ def bass_chroma24_to_chord_symbol(bass_note, chroma24_input, detect_inversion = 
             new_bass, new_chroma24 = inv_invert(new_bass, new_chroma24)
             symbs, imps = chroma24_to_chord_quality(new_chroma24, inverted = True)
             
-            for individual_symb, imp in zip(symbs, imps):
-                if individual_symb != UNK_CHORD:
-                    results.append((new_bass, individual_symb + f"-on-{PITCH_NUM_2_NAME[bass_note%12]}"))
+            for symb, imp in zip(symbs, imps):
+                if symb != UNK_CHORD:
+                    results.append((new_bass, symb, bass_note))
                     result_imps.append(imp)
 
+        if not return_midi_num:
+            bass_name = PITCH_NUM_2_NAME[bass_note%12]
+            results = [(PITCH_NUM_2_NAME[note%12],symb,bass_name) for note,symb,_ in results]
+            bass_note = PITCH_NUM_2_NAME[bass_note%12]
+                    
         if len(results) == 0:
-            return [(bass_note,UNK_CHORD)]
+            return [(bass_note,UNK_CHORD,bass_note)]
         
         if list_all:
             return list(dict.fromkeys(results))
         else:
             max_imp_id = np.argmax(result_imps)
             return [results[max_imp_id]]
+
+def form_chord_name(root_note, symb, bass_note = None):
+    if type(root_note) != str:
+        root_note = PITCH_NUM_2_NAME[root_note%12]
         
-#         if not list_all:
-#             if symb[0] == UNK_CHORD:
-#                 new_chroma24 = chroma24_input[:]
-#                 new_bass = bass_note
-#                 for i in range(len(chroma24_input)):
-#                     new_bass, new_chroma24 = inv_invert(new_bass, new_chroma24)
-#                     symb = chroma24_to_chord_quality(new_chroma24, inverted = True, list_all = False)
-#                     if symb[0] != UNK_CHORD:
-#                         return new_bass, symb[0] + f"-on-{PITCH_NUM_2_NAME[bass_note%12]}"
-#                 return [bass_note, symb[0]]
-#             else:
-#                 return [bass_note, symb[0]]
-        
-        
-## TODO: debug the functions
+    if bass_note is None:
+         return root_note + "-" + symb
+    else:
+        if type(bass_note) != str:
+            bass_note = PITCH_NUM_2_NAME[bass_note%12]
+        return root_note + "-" + symb + f"-on-" + bass_note
+
+def bass_chroma24_to_chord_name(bass_note, chroma24_input, detect_inversion = False, list_all = True):
+    name_results = []
+    root_symb_bass_results = bass_chroma24_to_chord_symbol(
+        bass_note, chroma24_input, detect_inversion, list_all
+    )
+    for root, symb, bass in root_symb_bass_results:
+        name_results.append(form_chord_name(root, symb, bass))
+    return name_results

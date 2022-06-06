@@ -166,7 +166,7 @@ INT2EXT_DOM = {
     # no 10th
     INT_11: "-11",
     INT_a11: "-#11",
-    INT_a12: "-#5",
+    INT_a12: "-b13",
     INT_M13: "-13",
     # no 14th
 }
@@ -200,7 +200,7 @@ INT2EXT_DOM_b5 = {
     INT_a9: "-#9",
     # no 10th
     INT_11: "-11",
-    INT_a12: "-#5",
+    INT_a12: "-b13",
     INT_M13: "-13",
     # no 14th
 }
@@ -214,7 +214,7 @@ INT2EXT_SUS = {
     INT_m9: "-b9",
     # no 10th
     INT_a11: "-#11",
-    INT_a12: "-#5",
+    INT_a12: "-b13",
     INT_M13: "-13",
     # no 14th
 }
